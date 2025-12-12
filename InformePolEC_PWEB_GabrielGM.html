@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Informe de Sostenibilidad Económica en 2025</title>
+
+    <!-- Tailwind, Chart.js, Plotly (ya presentes) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* ---------- Base visual rules (kept and slightly extended) ---------- */
+        :root {
+            --bg: #F8FAFC;
+            --text: #1E293B;
+            --accent-green: #10B981;
+            --accent-amber: #F59E0B;
+            --muted: #94A3B8;
+            --card-bg: #ffffff;
+            --primary: #0F766E;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Merriweather', serif;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 520px;
+        }
+
+        @media (min-width:768px) {
+            .chart-container {
+                height: 400px
+            }
+        }
+
+        .interactive-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .transition-300 {
+            transition: all .28s ease-in-out;
+        }
+
+        /* Tabs / small UI */
+        .active-tab {
+            border-bottom: 2px solid #a16207;
+            color: #451a03;
+            font-weight: 600;
+        }
+
+        /* Timeline */
+        .timeline {
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+
+        .timeline::-webkit-scrollbar {
+            height: 8px
+        }
+
+        .timeline::-webkit-scrollbar-thumb {
+            background: #e5e7eb;
+            border-radius: 999px
+        }
+
+        .timeline-item {
+            min-width: 220px;
+            background: var(--card-bg);
+            border: 1px solid #f1f1f0;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.03);
+        }
+
+        .timeline-year {
+            font-weight: 700;
+            color: var(--accent-amber);
+            margin-bottom: .5rem
+        }
+
+        /* Accordion (policy cards) */
+        .acc-head {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: .5rem
+        }
+
+        .acc-body {
+            display: none;
+            margin-top: .75rem;
+            font-size: .95rem;
+            color: #4b5563;
+        }
+
+        .acc-open .acc-body {
+            display: block
+        }
+
+        /* Citation list */
+        .refs {
+            font-size: 0.9rem;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        /* Small fixes for plotly container */
+        #investmentBubbleChart {
+            width: 100%;
+            height: 100%;
+            min-height: 320px;
+        }
+
+        /* Accessibility focus */
+        button:focus,
+        a:focus {
+            outline: 3px solid rgba(101, 163, 13, 0.12);
+            outline-offset: 3px;
+        }
+    </style>
+</head>
+
+<body class="selection:bg-emerald-100 selection:text-emerald-900">
+
+    <!-- NAV -->
+    <nav class="sticky top-0 z-50 bg-slate-50/90 backdrop-blur border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="text-xl font-serif font-bold text-slate-800 tracking-tight">Proyecto de Política económica
+                    I</span>
+            </div>
+            <div class="hidden md:flex space-x-8 text-sm font-medium text-slate-500">
+                <a href="#contexto" class="hover:text-slate-900 transition-colors">Contexto Macro</a>
+                <a href="#marco-teorico" class="hover:text-slate-900 transition-colors">Marco Teórico</a>
+                <a href="#energia" class="hover:text-slate-900 transition-colors">Transición</a>
+                <a href="#inversion" class="hover:text-slate-900 transition-colors">Matriz Inversión</a>
+                <a href="#estrategia" class="hover:text-slate-900 transition-colors">Estrategia</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HEADER -->
+    <header class="max-w-4xl mx-auto px-6 pt-20 pb-12 text-center">
+        <span
+            class="inline-block px-3 py-1 mb-4 text-xs font-semibold tracking-wider text-slate-500 uppercase bg-slate-100 rounded-full">Informe
+            general de proyecto </span>
+        <h1 class="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-6 leading-tight">
+            Sostenibilidad Ambiental como<br>Motor de Política Económica
+        </h1>
+        <p class="text-lg md:text-xl text-slate-600 leading-relaxed font-light">
+            Un análisis sobre cómo la transición hacia una economía baja en carbono ha dejado de ser un costo
+            para convertirse en el principal componente de competitividad, innovación y estabilidad macroeconómica.
+            Este proyecto pretende explorar la transformación estructural que requiere la economía para lograr
+            la sostenibilidad ambiental, usando herramientas de desarrollo web para presentar los hallazgos.
+
+        </p>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 pb-24 space-y-24">
+
+        <!-- SECTION 1: MACRO CONTEXT (The Decoupling) -->
+        <section id="contexto" class="scroll-mt-24">
+            <div class="grid md:grid-cols-12 gap-12 items-start">
+                <div class="md:col-span-4 space-y-6">
+                    <h2 class="text-2xl font-bold text-slate-800 border-l-4 border-orange-500 pl-4">El Gran
+                        Desacoplamiento</h2>
+                    <p class="text-slate-600 leading-relaxed">
+                        Tradicionalmente, el crecimiento del PIB estaba atado a las emisiones. Esta sección demuestra el
+                        fenómeno del <strong>desacoplamiento absoluto</strong>: las economías avanzadas están creciendo
+                        mientras reducen su huella ambiental.
+                    </p>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-100">
+                        <h4 class="text-sm font-bold text-slate-400 uppercase tracking-wide mb-2">Dato Clave</h4>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-4xl font-serif font-bold text-green-700">-12.2%</span>
+                            <span class="text-sm text-slate-500">Emisiones CO₂</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2 mt-2">
+                            <span class="text-4xl font-serif font-bold text-slate-800">+34.5%</span>
+                            <span class="text-sm text-slate-500">Crecimiento PIB</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-4 italic">Periodo analizado: 2010 - 2024</p>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Proyección 2030:</label>
+                        <div class="flex space-x-2">
+                            <button id="btn-scenario-bau"
+                                class="flex-1 py-2 px-3 text-xs font-medium rounded shadow-sm bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition-300"
+                                onclick="updateDecouplingChart('bau')">Tendencia Actual</button>
+                            <button id="btn-scenario-green"
+                                class="flex-1 py-2 px-3 text-xs font-medium rounded shadow-sm bg-slate-800 text-white border border-slate-800 hover:bg-slate-700 transition-300"
+                                onclick="updateDecouplingChart('green')">Política Verde</button>
+                        </div>
+                        <p id="scenario-desc" class="text-xs text-slate-500 mt-3 leading-snug">
+                            Mostrando escenario de <strong>Política Verde</strong>: Implementación agresiva de impuestos
+                            al carbono e incentivos a la innovación.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="md:col-span-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-serif font-bold text-slate-800">Divergencia PIB vs. Huella Ambiental</h3>
+                            <span class="text-xs text-slate-400 font-mono">Índice Base 100 = 2010</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="decouplingChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW: MARCO TEÓRICO + POLÍTICAS (Secciones 1-5 integradas) -->
+        <section id="marco-teorico" class="scroll-mt-24">
+            <div class="max-w-4xl mx-auto text-center mb-14">
+                <h2 class="text-3xl font-serif font-bold text-slate-800 mb-4">Sostenibilidad Ambiental en la Actividad
+                    Productiva</h2>
+                <p class="text-slate-600 text-lg leading-relaxed">
+                    Este apartado sintetiza los fundamentos teóricos económicos y políticos que justifican
+                    la sostenibilidad ambiental como objetivo de política económica. El abordaje se basa, en términos
+                    de estructura, en la consulta de autores básicos en estudiados a lo largo de la carrera, adaptados a
+                    este informe de investigación.
+
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10">
+
+                <!-- MARCO CONCEPTUAL Y FALLOS DE MERCADO -->
+                <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-8">
+                    <h3 class="font-serif font-bold text-slate-900 mb-4 text-xl border-l-4 border-green-600 pl-4">1.
+                        Fallos de Mercado Ambientales</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        La sostenibilidad se justifica económicamente porque el mercado no internaliza los costos
+                        ambientales. Las emisiones y la degradación generan:
+                    </p>
+                    <ul class="space-y-2 text-sm text-slate-700">
+                        <li><strong>Externalidades negativas</strong>: Pigou – los agentes no pagan el costo total
+                            social.</li>
+                        <li><strong>Bienes públicos y comunes</strong>: Ostrom – riesgo de sobreexplotación.</li>
+                        <li><strong>Fallo de innovación tecnológica</strong>: inversiones verdes tienen riesgo elevado y
+                            spillovers positivos.</li>
+                        <li><strong>Miopía temporal</strong>: decisiones privadas maximizan beneficios inmediatos, no
+                            bienestar intergeneracional.</li>
+                        <li><strong>Paradoja de Jevons (Efecto Rebote)</strong>: la eficiencia abarata el consumo y
+                            puede aumentar el uso total de recursos.</li>
+                    </ul>
+                </div>
+
+                <!-- INSTRUMENTOS DE POLÍTICA ECONÓMICA -->
+                <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-8">
+                    <h3 class="font-serif font-bold text-slate-900 mb-4 text-xl border-l-4 border-orange-600 pl-4">2.
+                        Instrumentos de Política Económica</h3>
+                    <p class="text-slate-600 text-sm mb-4">
+                        Para corregir fallos de mercado y transformar la actividad productiva, se requieren instrumentos
+                        combinados:
+                    </p>
+                    <ul class="space-y-2 text-sm text-slate-700">
+                        <li><strong>Impuesto al carbono</strong> (Pigou): internaliza externalidades y envía señales de
+                            precio.</li>
+                        <li><strong>Mercado de permisos</strong>: Coase – eficiencia asignativa mediante comercio.</li>
+                        <li><strong>Subsidios verdes</strong>: corrigen fallos de innovación y riesgos tecnológicos.
+                        </li>
+                        <li><strong>Regulación técnica</strong>: estándares de eficiencia que aseguran mínimos
+                            ambientales.</li>
+                        <li><strong>Compras públicas verdes</strong>: política industrial orientada a crear demanda
+                            inicial.</li>
+                    </ul>
+                </div>
+
+                <!-- DISEÑO INSTITUCIONAL Y POLÍTICO -->
+                <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-8 md:col-span-2">
+                    <h3 class="font-serif font-bold text-slate-900 mb-4 text-xl border-l-4 border-cyan-600 pl-4">3.
+                        Diseño Institucional y Dimensión Política</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        La eficacia de la política ambiental depende de las instituciones y la distribución del poder
+                        entre actores:
+                    </p>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <ul class="space-y-2 text-sm text-slate-700">
+                            <li><strong>Gobernanza policéntrica</strong> (Ostrom): coordinación multinivel.</li>
+                            <li><strong>Estado como catalizador</strong> (Mazzucato): inversión pública orientada a
+                                misiones.</li>
+                            <li><strong>Gestión del riesgo</strong> (Beck): anticipación frente a externalidades
+                                globales.</li>
+                        </ul>
+                        <ul class="space-y-2 text-sm text-slate-700">
+                            <li><strong>Legitimidad democrática:</strong> políticas sostenibles requieren equidad
+                                distributiva.</li>
+                            <li><strong>Transición justa:</strong> compensación a sectores afectados.</li>
+                            <li><strong>Coordinación global:</strong> bienes públicos planetarios como el clima.</li>
+                            <li><strong>Acuerdo de París:</strong> tratado de planificación económica vinculante, no
+                                solo ambiental.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- JUSTIFICACIÓN FILOSÓFICA -->
+                <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-8">
+                    <h3 class="font-serif font-bold text-slate-900 mb-4 text-xl border-l-4 border-indigo-600 pl-4">4.
+                        Fundamentos Éticos y Filosóficos</h3>
+                    <p class="text-slate-600 text-sm mb-4">
+                        La sostenibilidad no es solo eficiencia económica, es un deber moral intergeneracional.
+                        Considerar
+                        a la ética en ejercicio de la política económica (así como en el ejercicio profesional) es
+                        crucial para legitimar las acciones:
+                    </p>
+                    <ul class="space-y-2 text-sm text-slate-700">
+                        <li><strong>Hans Jonas</strong>: principio de responsabilidad hacia las generaciones futuras.
+                        </li>
+                        <li><strong>Rawls</strong>: justicia intergeneracional y equidad en la distribución del riesgo.
+                        </li>
+                        <li><strong>Arne Næss</strong>: ecología profunda – valor intrínseco de la naturaleza.</li>
+                        <li><strong>Latour</strong>: repensar la modernidad y la relación humanidad-planeta.</li>
+                    </ul>
+                </div>
+
+                <!-- CONCLUSIONES / IMPLICACIONES -->
+                <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-8">
+                    <h3 class="font-serif font-bold text-slate-900 mb-4 text-xl border-l-4 border-orange-700 pl-4">5.
+                        Implicaciones para la Actividad Productiva</h3>
+                    <p class="text-slate-600 text-sm mb-4">
+                        Integrar sostenibilidad como objetivo de política económica implica reestructurar la producción.
+                    </p>
+                    <ul class="space-y-2 text-sm text-slate-700">
+                        <li><strong>Transformación tecnológica</strong>: eficiencia energética, electrificación,
+                            eco-diseño.</li>
+                        <li><strong>Competitividad verde</strong>: nuevos mercados y ventaja comparativa.</li>
+                        <li><strong>Reducción de riesgos</strong>: menor exposición a volatilidad energética y
+                            regulatoria.</li>
+                    </ul>
+                </div>
+
+                <!-- ECONOMÍA CIRCULAR Y LÍMITES -->
+                <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-8">
+                    <h3 class="font-serif font-bold text-slate-900 mb-4 text-xl border-l-4 border-rose-600 pl-4">6.
+                        Economía Circular y Límites Físicos</h3>
+                    <p class="text-slate-600 text-sm mb-4">
+                        Transición radical de las "3R" a <strong>Repensar</strong> el modelo de negocio
+                        (Servitización/SaaS) para alinear incentivos con la durabilidad.
+                    </p>
+                    <ul class="space-y-2 text-sm text-slate-700">
+                        <li><strong>Servitización</strong>: Venta de uso, no de propiedad (Product-as-a-Service).</li>
+                        <li><strong>Límite Entrópico</strong>: El reciclaje perfecto es imposible (degradación
+                            material).</li>
+                        <li><strong>Restricción Absoluta</strong>: La eficiencia circular requiere límites al uso de
+                            recursos vírgenes.</li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: ENERGY TRANSITION -->
+        <section id="energia" class="scroll-mt-24">
+            <div class="mb-10 text-center max-w-3xl mx-auto">
+                <h2 class="text-3xl font-serif font-bold text-slate-800 mb-4">Reconfiguración de la Matriz</h2>
+                <p class="text-slate-600">
+                    El cambio estructural hacia fuentes renovables no solo reduce emisiones, sino que disminuye la
+                    volatilidad de los precios energéticos a largo plazo. Una exploración de la composición proyectada
+                    de la matriz energética.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="grid md:grid-cols-3">
+                    <!-- Interactive Controls (Left) -->
+                    <div class="p-8 bg-slate-50 border-r border-slate-100 flex flex-col justify-center space-y-8">
+                        <div>
+                            <h3 class="font-serif font-bold text-slate-800 mb-2">Fuentes de Energía</h3>
+                            <p class="text-sm text-slate-500 mb-4">Pase el cursor por el gráfico para ver detalles
+                                anuales.</p>
+                            <div class="space-y-3">
+                                <div class="flex items-center text-sm text-slate-600">
+                                    <span class="w-3 h-3 rounded-full bg-green-600 mr-2"></span> Renovables
+                                    (Solar/Eólica)
+                                </div>
+                                <div class="flex items-center text-sm text-slate-600">
+                                    <span class="w-3 h-3 rounded-full bg-cyan-600 mr-2"></span> Gas de Transición
+                                </div>
+                                <div class="flex items-center text-sm text-slate-600">
+                                    <span class="w-3 h-3 rounded-full bg-slate-400 mr-2"></span> Fósiles Convencionales
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-6 border-t border-slate-200">
+                            <div class="mb-2 text-xs uppercase tracking-wide text-slate-400 font-bold">Impacto Económico
+                            </div>
+                            <div class="text-2xl font-serif font-bold text-slate-800 mb-1">Costos &#8595; 40%</div>
+                            <p class="text-xs text-slate-500">Reducción proyectada en costos operativos industriales
+                                para 2030 debido a la caída del LCOE solar.</p>
+                        </div>
+                    </div>
+
+                    <!-- Visualization (Right) -->
+                    <div class="md:col-span-2 p-8">
+                        <div class="chart-container">
+                            <canvas id="energyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: INVESTMENT MATRIX (Plotly) + Policy cards + New Chart (comparativa de instrumentos) -->
+        <section id="inversion" class="scroll-mt-24">
+            <div class="grid md:grid-cols-12 gap-12">
+                <div class="md:col-span-8 order-2 md:order-1">
+                    <div class="bg-white p-2 rounded-xl shadow-sm border border-slate-100 h-full">
+                        <div class="chart-container" style="height: 450px; max-height: 500px;">
+                            <div id="investmentBubbleChart" class="w-full h-full"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-4 order-1 md:order-2 flex flex-col justify-center space-y-6">
+                    <h2 class="text-2xl font-bold text-slate-800 border-l-4 border-orange-500 pl-4">Matriz de Eficiencia
+                        de Inversión</h2>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        Este gráfico de burbujas es crucial para la toma de decisiones. Analiza sectores basándose en
+                        tres variables:
+                    </p>
+                    <ul class="text-sm space-y-4 text-slate-600">
+                        <li class="flex items-start">
+                            <span class="font-bold text-slate-900 w-24 shrink-0">Eje X:</span>
+                            Costo de Inversión (Billones $)
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-bold text-slate-900 w-24 shrink-0">Eje Y:</span>
+                            Reducción de CO₂ (Megatoneladas)
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-bold text-slate-900 w-24 shrink-0">Tamaño:</span>
+                            Retorno de Inversión (ROI)
+                        </li>
+                    </ul>
+
+                    <!-- Interactive Policy Cards (Accordion) -->
+                    <div class="mt-4">
+                        <h3 class="text-sm font-semibold text-slate-800 mb-3">Instrumentos — detalles y efectos</h3>
+
+                        <div class="space-y-3">
+                            <!-- Card: Carbon Tax -->
+                            <div class="bg-white border rounded-lg p-3 transition-300 acc">
+                                <div class="acc-head" onclick="toggleAcc(this)">
+                                    <div>
+                                        <div class="text-sm font-bold">Impuesto al Carbono</div>
+                                        <div class="text-xs text-slate-500">Señal de precio, ingreso fiscal</div>
+                                    </div>
+                                    <div class="text-xs text-slate-400">▼</div>
+                                </div>
+                                <div class="acc-body">
+                                    <p class="text-sm">Efectos: internaliza externalidades; reduce emisiones por
+                                        sustitución. Riesgos: impacto en precios y competitividad si no hay medidas
+                                        compensatorias.</p>
+                                </div>
+                            </div>
+
+                            <!-- Card: Cap & Trade -->
+                            <div class="bg-white border rounded-lg p-3 transition-300 acc">
+                                <div class="acc-head" onclick="toggleAcc(this)">
+                                    <div>
+                                        <div class="text-sm font-bold">Mercado de Permisos (Cap-and-Trade)</div>
+                                        <div class="text-xs text-slate-500">Cantidad fija, precio variable</div>
+                                    </div>
+                                    <div class="text-xs text-slate-400">▼</div>
+                                </div>
+                                <div class="acc-body">
+                                    <p class="text-sm">Efectos: garantiza objetivo ambiental; permite eficiencia por
+                                        comercio. Riesgos: asignación inicial y volatilidad de precios.</p>
+                                </div>
+                            </div>
+
+                            <!-- Card: Subsidios e I+D -->
+                            <div class="bg-white border rounded-lg p-3 transition-300 acc">
+                                <div class="acc-head" onclick="toggleAcc(this)">
+                                    <div>
+                                        <div class="text-sm font-bold">Subsidios a Inversión Verde</div>
+                                        <div class="text-xs text-slate-500">Corrige fallos de innovación</div>
+                                    </div>
+                                    <div class="text-xs text-slate-400">▼</div>
+                                </div>
+                                <div class="acc-body">
+                                    <p class="text-sm">Efectos: reduce riesgo de adopción y acelera despliegue. Riesgos:
+                                        coste fiscal y captura si no es condicional.</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- NEW: Quantitative comparison chart of instruments -->
+            <div class="mt-8 bg-white border rounded-xl p-6 shadow-sm">
+                <h3 class="font-serif font-bold text-slate-800 mb-4">Comparativa cuantitativa de instrumentos</h3>
+                <p class="text-sm text-slate-600 mb-4">Estimación ilustrativa: eficacia relativa, coste fiscal /
+                    competitivo y equidad distributiva (0-100).</p>
+                <div class="chart-container" style="height:280px; max-width:100%;">
+                    <canvas id="policyCompareChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: STRATEGIC ROADMAP (with timeline) -->
+        <section id="estrategia" class="scroll-mt-24 mb-12">
+            <h2 class="text-3xl font-serif font-bold text-slate-800 text-center mb-6">Hoja de Ruta de Política Pública
+            </h2>
+
+            <!-- Timeline -->
+            <div class="bg-white border rounded-xl p-6 shadow-sm mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-slate-800">Línea temporal: 2024 — 2032</h3>
+                    <div class="text-sm text-slate-500">Secuencia lógica de instrumentos</div>
+                </div>
+
+                <div class="timeline" id="policyTimeline" role="list">
+                    <div class="timeline-item" role="listitem">
+                        <div class="timeline-year">2024</div>
+                        <div class="text-sm font-semibold">Diagnóstico & Primeros Precios</div>
+                        <div class="text-xs text-slate-500 mt-2">Establecer auditorías sectoriales y piloto de impuesto
+                            al carbono.</div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">2026</div>
+                        <div class="text-sm font-semibold">Escalamiento & Subvenciones</div>
+                        <div class="text-xs text-slate-500 mt-2">Lanzamiento de subsidios condicionados a I+D y
+                            despliegue infraestructural.</div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">2028</div>
+                        <div class="text-sm font-semibold">Mercado & Regulación</div>
+                        <div class="text-xs text-slate-500 mt-2">Implementación de mercado de permisos sectorial y
+                            estándares de eficiencia obligatorios.</div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">2030</div>
+                        <div class="text-sm font-semibold">Transición Justa</div>
+                        <div class="text-xs text-slate-500 mt-2">Programas de reentrenamiento laboral y compensaciones
+                            regionales.</div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">2032</div>
+                        <div class="text-sm font-semibold">Consolidación</div>
+                        <div class="text-xs text-slate-500 mt-2">Evaluación integral y ajuste de instrumentos;
+                            coordinación internacional.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Policy cards (already exist) - keep the grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div
+                    class="interactive-card bg-white p-6 rounded-lg border border-slate-100 shadow-sm flex flex-col items-center text-center transition-300">
+                    <div
+                        class="w-12 h-12 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-xl mb-4">
+                        ⚖️</div>
+                    <h3 class="font-bold text-slate-800 mb-2">Regulación Fiscal</h3>
+                    <p class="text-xs text-slate-500 mb-4">Alineación de incentivos tributarios.</p>
+                    <div class="w-full bg-slate-50 p-3 rounded text-left space-y-2">
+                        <div class="text-xs text-slate-600 flex items-start"><span
+                                class="text-green-600 mr-2">●</span>Impuesto al Carbono</div>
+                        <div class="text-xs text-slate-600 flex items-start"><span
+                                class="text-green-600 mr-2">●</span>Depreciación Acelerada</div>
+                    </div>
+                </div>
+
+                <div
+                    class="interactive-card bg-white p-6 rounded-lg border border-slate-100 shadow-sm flex flex-col items-center text-center transition-300">
+                    <div
+                        class="w-12 h-12 bg-orange-100 text-orange-700 rounded-full flex items-center justify-center text-xl mb-4">
+                        🏗️</div>
+                    <h3 class="font-bold text-slate-800 mb-2">Infraestructura</h3>
+                    <p class="text-xs text-slate-500 mb-4">Modernización de la red física.</p>
+                    <div class="w-full bg-slate-50 p-3 rounded text-left space-y-2">
+                        <div class="text-xs text-slate-600 flex items-start"><span
+                                class="text-orange-600 mr-2">●</span>Red Eléctrica Inteligente</div>
+                        <div class="text-xs text-slate-600 flex items-start"><span
+                                class="text-orange-600 mr-2">●</span>Corredores de Hidrógeno</div>
+                    </div>
+                </div>
+
+                <div
+                    class="interactive-card bg-white p-6 rounded-lg border border-slate-100 shadow-sm flex flex-col items-center text-center transition-300">
+                    <div
+                        class="w-12 h-12 bg-cyan-100 text-cyan-700 rounded-full flex items-center justify-center text-xl mb-4">
+                        🧪</div>
+                    <h3 class="font-bold text-slate-800 mb-2">I+D+i</h3>
+                    <p class="text-xs text-slate-500 mb-4">Inversión en tecnologías frontera.</p>
+                    <div class="w-full bg-slate-50 p-3 rounded text-left space-y-2">
+                        <div class="text-xs text-slate-600 flex items-start"><span
+                                class="text-cyan-600 mr-2">●</span>Captura de Carbono</div>
+                        <div class="text-xs text-slate-600 flex items-start"><span
+                                class="text-cyan-600 mr-2">●</span>Nuevos Materiales</div>
+                    </div>
+                </div>
+
+                <div
+                    class="interactive-card bg-white p-6 rounded-lg border border-slate-100 shadow-sm flex flex-col items-center text-center transition-300">
+                    <div
+                        class="w-12 h-12 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-xl mb-4">
+                        💼</div>
+                    <h3 class="font-bold text-slate-800 mb-2">Capital Humano</h3>
+                    <p class="text-xs text-slate-500 mb-4">Adaptación de la fuerza laboral.</p>
+                    <div class="w-full bg-slate-50 p-3 rounded text-left space-y-2">
+                        <div class="text-xs text-slate-600 flex items-start"><span
+                                class="text-indigo-600 mr-2">●</span>Reskilling Técnico</div>
+                        <div class="text-xs text-slate-600 flex items-start"><span
+                                class="text-indigo-600 mr-2">●</span>Certificación Verde</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ACADEMIC REFERENCES (FORMAL) -->
+        <section id="referencias" class="scroll-mt-24">
+            <div class="bg-white border rounded-xl p-6 shadow-sm">
+                <h3 class="font-serif font-bold text-slate-800 mb-4">Sección de Bibliografía</h3>
+                <p class="text-sm text-slate-600 mb-4">Aquí los textos que sustentan el marco conceptual y la
+                    elección de instrumentos:</p>
+                <ol class="refs list-decimal list-inside">
+                    <li>Meadows, D., Meadows, D., Randers, J., &amp; Behrens III, W. (1972). <em>Limits to Growth</em>.
+                        Club of Rome.</li>
+                    <li>Pigou, A. C. (1920). <em>The Economics of Welfare</em>. (Concepto de externalidad).</li>
+                    <li>Coase, R. H. (1960). "The Problem of Social Cost". <em>Journal of Law and Economics</em>.</li>
+                    <li>Ostrom, E. (1990). <em>Governing the Commons</em>. Cambridge University Press.</li>
+                    <li>Daly, H. (1996). <em>Beyond Growth</em>. Beacon Press.</li>
+                    <li>Mazzucato, M. (2018). <em>The Entrepreneurial State</em>. Anthem Press. (Políticas orientadas a
+                        misiones).</li>
+                    <li>Jonas, H. (1984). <em>The Imperative of Responsibility</em>. University of Chicago Press.</li>
+                    <li>Raworth, K. (2017). <em>Doughnut Economics</em>. Chelsea Green Publishing.</li>
+                    <li>Klein, N. (2014). <em>This Changes Everything</em>. Simon &amp; Schuster.</li>
+                </ol>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-100 border-t border-slate-200 py-12">
+        <div class="max-w-6xl mx-auto px-6 text-center text-slate-500">
+            <p class="font-serif font-bold mb-2">Realizado por Gabriel González M</p>
+            <p class="text-xs mt-4">Fuente de Datos: Simulaciones agregadas del Banco Mundial, OCDE y Panel
+                Intergubernamental (2024-2030).</p>
+        </div>
+    </footer>
+
+    <!-- ---------- SCRIPTS (charts + UI) ---------- -->
+    <script>
+        /* ---------- Data (kept from original + new arrays for policy chart) ---------- */
+        const data = {
+            decoupling: {
+                labels: ['2010', '2012', '2014', '2016', '2018', '2020', '2022', '2024', '2026', '2028', '2030'],
+                gdp: [100, 105, 110, 116, 122, 120, 128, 134, 140, 146, 152],
+                co2_bau: [100, 102, 104, 105, 106, 100, 102, 104, 108, 112, 115],
+                co2_green: [100, 102, 104, 102, 98, 92, 88, 85, 80, 72, 65]
+            },
+            energy: {
+                labels: ['2020', '2022', '2024', '2026', '2028', '2030'],
+                fossil: [65, 60, 50, 40, 30, 20],
+                gas: [25, 25, 28, 25, 20, 15],
+                renewable: [10, 15, 22, 35, 50, 65]
+            },
+            investment: {
+                x: [15, 45, 10, 35, 60],
+                y: [40, 90, 80, 50, 20],
+                r: [25, 30, 55, 20, 10],
+                labels: ['Eco-Diseño', 'Movilidad Eléctrica', 'Eficiencia Energética', 'Hidrógeno Verde', 'Captura de Carbono']
+            },
+            policyCompare: {
+                labels: ['Impuesto Carbono', 'Cap-and-Trade', 'Subsidios I+D', 'Estandares', 'Compras Públicas'],
+                efficacy: [75, 70, 65, 55, 50],
+                fiscalCost: [10, 5, 40, 5, 15],   // relativo: mayor = mayor coste fiscal
+                equity: [60, 50, 70, 40, 55]      // relativo: mayor = más equitativo
+            }
+        };
+
+        /* ---------- Decoupling Chart (Chart.js) ---------- */
+        const ctxDec = document.getElementById('decouplingChart').getContext('2d');
+        const decouplingChart = new Chart(ctxDec, {
+            type: 'line',
+            data: {
+                labels: data.decoupling.labels,
+                datasets: [
+                    { label: 'PIB (Índice)', data: data.decoupling.gdp, borderColor: '#1E293B', backgroundColor: 'rgba(30,41,59,0.06)', borderWidth: 2, tension: .36, pointRadius: 0 },
+                    { label: 'Emisiones CO₂ (Objetivo)', data: data.decoupling.co2_green, borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,0.08)', borderWidth: 3, borderDash: [5, 5], tension: .36, pointRadius: 3 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'top', align: 'end' },
+                    tooltip: {
+                        backgroundColor: '#fff', titleColor: '#444', bodyColor: '#333',
+                        borderColor: '#eee', borderWidth: 1, padding: 10,
+                        callbacks: {
+                            title: (items) => `Año: ${items[0].label}`,
+                            label: (item) => `${item.dataset.label}: ${item.formattedValue}`
+                        }
+                    }
+                },
+                scales: { x: { grid: { display: false } }, y: { grid: { color: '#f5f5f4' } } }
+            }
+        });
+
+        // Toggle scenario
+        window.updateDecouplingChart = function (scenario) {
+            const btnB = document.getElementById('btn-scenario-bau'), btnG = document.getElementById('btn-scenario-green'), desc = document.getElementById('scenario-desc');
+            if (scenario === 'bau') {
+                decouplingChart.data.datasets[1].data = data.decoupling.co2_bau;
+                decouplingChart.data.datasets[1].borderColor = '#ef4444';
+                decouplingChart.data.datasets[1].label = 'Emisiones CO₂ (Tendencia)';
+                desc.innerHTML = 'Mostrando escenario <strong>Tendencia Actual</strong>: Sin intervención política, las emisiones continúan correlacionadas con el crecimiento.';
+                btnB.classList.add('bg-slate-800', 'text-white'); btnG.classList.remove('bg-slate-800', 'text-white');
+            } else {
+                decouplingChart.data.datasets[1].data = data.decoupling.co2_green;
+                decouplingChart.data.datasets[1].borderColor = '#10B981';
+                decouplingChart.data.datasets[1].label = 'Emisiones CO₂ (Objetivo)';
+                desc.innerHTML = 'Mostrando escenario de <strong>Política Verde</strong>: Implementación agresiva de impuestos al carbono e incentivos a la innovación.';
+                btnG.classList.add('bg-slate-800', 'text-white'); btnB.classList.remove('bg-slate-800', 'text-white');
+            }
+            decouplingChart.update();
+        };
+
+        // ---------- Energy Chart (stacked area) ----------
+        const ctxE = document.getElementById('energyChart').getContext('2d');
+        new Chart(ctxE, {
+            type: 'line',
+            data: {
+                labels: data.energy.labels,
+                datasets: [
+                    { label: 'Renovables', data: data.energy.renewable, backgroundColor: 'rgba(16,185,129,0.7)', borderColor: '#10B981', fill: true, tension: .3 },
+                    { label: 'Gas Transición', data: data.energy.gas, backgroundColor: 'rgba(6,182,212,0.4)', borderColor: '#06b6d4', fill: true, tension: .3 },
+                    { label: 'Fósiles', data: data.energy.fossil, backgroundColor: 'rgba(148,163,184,0.4)', borderColor: '#94A3B8', fill: true, tension: .3 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' }, tooltip: { mode: 'index', intersect: false } },
+                scales: { y: { stacked: true, max: 100, ticks: { callback: (v) => v + '%' } }, x: { grid: { display: false } } }
+            }
+        });
+
+        // ---------- Investment bubble (Plotly) ----------
+        const bubbleTrace = {
+            x: data.investment.x,
+            y: data.investment.y,
+            text: data.investment.labels,
+            mode: 'markers',
+            marker: {
+                size: data.investment.r,
+                sizemode: 'area',
+                sizeref: 0.2,
+                color: ['#10B981', '#0891b2', '#059669', '#F59E0B', '#64748B'],
+                opacity: 0.85,
+                line: { color: 'white', width: 1 }
+            },
+            hovertemplate: '<b>%{text}</b><br>Inversión: $%{x}B<br>Reducción CO₂: %{y}Mt<extra></extra>'
+        };
+        const bubbleLayout = {
+            margin: { t: 20, r: 20, b: 50, l: 60 },
+            hovermode: 'closest',
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            xaxis: { title: { text: 'Costo de Inversión (Billones USD)' }, gridcolor: '#f5f5f4', color: '#78716c' },
+            yaxis: { title: { text: 'Impacto Ambiental (Reducción Mt CO₂)' }, gridcolor: '#f5f5f4', color: '#78716c' },
+            font: { family: 'Inter' }
+        };
+        Plotly.newPlot('investmentBubbleChart', [bubbleTrace], bubbleLayout, { responsive: true, displayModeBar: false, renderer: 'canvas' });
+
+        window.addEventListener('resize', () => Plotly.Plots.resize('investmentBubbleChart'));
+
+        // ---------- New Chart: Policy comparison (radar + bar overlay) ----------
+        const ctxPolicy = document.getElementById('policyCompareChart').getContext('2d');
+        // Radar for efficacy & equity, bar for fiscal cost (secondary y not available easily in Chart.js v3; use grouped bars)
+        const policyCompareChart = new Chart(ctxPolicy, {
+            type: 'bar',
+            data: {
+                labels: data.policyCompare.labels,
+                datasets: [
+                    { label: 'Eficacia (0-100)', data: data.policyCompare.efficacy, type: 'line', borderColor: '#059669', backgroundColor: 'rgba(5,150,105,0.06)', order: 1, tension: 0.3, yAxisID: 'y' },
+                    { label: 'Coste Fiscal (rel.)', data: data.policyCompare.fiscalCost, type: 'bar', backgroundColor: '#F59E0B', order: 2, yAxisID: 'y2' },
+                    { label: 'Equidad (0-100)', data: data.policyCompare.equity, type: 'line', borderColor: '#0ea5a6', backgroundColor: 'rgba(14,165,166,0.06)', order: 1, tension: 0.3, yAxisID: 'y' }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' }, tooltip: { mode: 'index', intersect: false } },
+                scales: {
+                    y: { type: 'linear', position: 'left', min: 0, max: 100, title: { display: true, text: 'Eficacia / Equidad (0-100)' } },
+                    y2: { type: 'linear', position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false }, title: { display: true, text: 'Coste Fiscal (rel.)' } }
+                }
+            }
+        });
+
+        /* ---------- ACCORDION UI ---------- */
+        function toggleAcc(el) {
+            const root = el.closest('.acc');
+            if (!root) return;
+            root.classList.toggle('acc-open');
+            // rotate arrow
+            const arrow = el.querySelector(':scope > div:last-child') || el.querySelector('.acc-head > div:last-child');
+            if (arrow) arrow.textContent = root.classList.contains('acc-open') ? '▲' : '▼';
+        }
+
+        // Open first accordion by default
+        document.addEventListener('DOMContentLoaded', () => {
+            const first = document.querySelector('.acc');
+            if (first) { first.classList.add('acc-open'); const arrow = first.querySelector('.acc-head > div:last-child'); if (arrow) arrow.textContent = '▲'; }
+        });
+
+        /* ---------- Small: keyboard accessible timeline scroll with arrows ---------- */
+        (function () {
+            const timeline = document.getElementById('policyTimeline');
+            if (!timeline) return;
+            timeline.setAttribute('tabindex', '0');
+            timeline.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') timeline.scrollBy({ left: 220, behavior: 'smooth' });
+                if (e.key === 'ArrowLeft') timeline.scrollBy({ left: -220, behavior: 'smooth' });
+            });
+        })();
+
+    </script>
+</body>
+
+</html>
