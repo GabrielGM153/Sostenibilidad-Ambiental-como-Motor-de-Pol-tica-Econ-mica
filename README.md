@@ -1,10 +1,10 @@
 
-1. Tanto hacer análisis económico, aplicado a la política económica.
-2. Presentar dicho análisis con herramientas de desarrollo web.
-
 # Sostenibilidad Ambiental como Motor de Política Económica
 
-Este sitio web presenta un análisis sobre la sostenibilidad ambiental en la actividad productiva como objetivo y eje estratégico de política económica. 
+Este sitio web presenta un análisis sobre la sostenibilidad ambiental en la actividad productiva como objetivo y eje estratégico de política económica. Se tienen los siguientes objetivos como principal foco:
+
+1. Tanto hacer análisis económico, aplicado a la política económica.
+2. Presentar dicho análisis con herramientas de desarrollo web.
 
 ## 🔍 Contenido
 
